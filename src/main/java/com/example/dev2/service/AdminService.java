@@ -25,19 +25,20 @@ public class AdminService {
 	
 	public ProductEntity addProduct( String name, Double amount, Integer stock, Integer categoryId) {
 
-		try {
-			ProductCategory productCategory = productCatRepo.findById(categoryId).orElseThrow(NotFoundException::new);
-			ProductEntity prod = new ProductEntity();
-			prod.setName(name);
-			prod.setAmount(amount);
-			prod.setStock(stock);
-			prod.setProductCategory(productCategory);
+		Optional<ProductCategory> categoryOptional = productCatRepo.findById(categoryId);
 
-			return productRepository.save(prod);
-		} catch (NotFoundException e) {
-			throw new ServiceException(e.getMessage(), e);
+        if (!categoryOptional.isPresent()) {
+            throw new RuntimeException("Category not found");
+        }
 
-		}
+        ProductCategory category = categoryOptional.get();
+        ProductEntity product = new ProductEntity();
+        product.setName(name);
+        product.setAmount(amount);
+        product.setStock(stock);
+        product.setProductCategory(category);
+
+        return productRepository.save(product);
 
 	}
 	
@@ -46,8 +47,11 @@ public class AdminService {
 		Optional<ProductEntity> pro = productRepository.findById(id); 
 		if(pro.isPresent()) {
 			ProductEntity p = pro.get();
+			System.out.println(amount);
 			p.setAmount(amount);
 			p.setStock(stock);
+			
+			System.out.println(p.getAmount());
 			
 			productRepository.save(p);
 			return p;

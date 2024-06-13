@@ -19,7 +19,7 @@ public class ProductCategory {
     
     private String categoryName;
     
-    @OneToMany(mappedBy = "productCategory", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "productCategory", cascade = CascadeType.ALL)
     private List<ProductEntity> products;
 
 	public ProductCategory() {

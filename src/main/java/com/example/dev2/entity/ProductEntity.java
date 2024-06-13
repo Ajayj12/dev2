@@ -2,6 +2,8 @@ package com.example.dev2.entity;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -25,6 +27,7 @@ public class ProductEntity {
     
     @ManyToOne
     @JoinColumn(name = "product_category_id")
+    @JsonIgnore
     private ProductCategory productCategory;
     
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
