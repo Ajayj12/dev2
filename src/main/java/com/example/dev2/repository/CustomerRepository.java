@@ -1,12 +1,17 @@
 package com.example.dev2.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import com.example.dev2.entity.CustomerEntity;
 import com.example.dev2.entity.OrdersEntity;
 import com.example.dev2.entity.ProductEntity;
 
 @Repository
-public interface CustomerRepository extends JpaRepository<ProductEntity, Integer>{
+public interface CustomerRepository extends JpaRepository<CustomerEntity, Integer>{
+	
+	
 
 }
