@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -39,30 +40,34 @@ public class CustomerController {
 	@Autowired
 	private ProductCategoryRepository productCatRepo;
 	
+	@PreAuthorize("hasRole('ROLE_USER')")
 	@GetMapping("products")
 	public List<ProductEntity> getAllProducts(ProductEntity product) {
 		
 		return customerService.getAllProducts(product);
 	}
 	
+	@PreAuthorize("hasRole('ROLE_USER')")
 	@GetMapping("products/{productcategoryId}")
 	public List<ProductEntity> getProductsByCategoryId(@PathVariable("productcategoryId") Integer productcategoryId){
 		
 		return customerService.getProductsByCategoryId(productcategoryId);
 	}
 	
+	@PreAuthorize("hasRole('ROLE_USER')")
 	@GetMapping("product/{id}")
 	public Optional<ProductEntity> getProductById(@PathVariable("id")Integer id){
 		return customerService.getProductById(id);
 		
 	}
 	
+	@PreAuthorize("hasRole('ROLE_USER')")
 	@GetMapping("trending")
 	public List<ProductEntity> getTrending(){
 		return customerService.getTrending();
 	}
 	
-	
+	@PreAuthorize("hasRole('ROLE_USER')")
 	@PostMapping("placeOrder/{customerId}")
 	public ResponseEntity<OrdersEntity> placeOrder(@RequestBody OrderRequestDto orderRequest) {
 		try {
