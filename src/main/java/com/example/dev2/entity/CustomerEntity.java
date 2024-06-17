@@ -1,16 +1,21 @@
 package com.example.dev2.entity;
 
 import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.JoinColumn;
 
 @Entity
 @Table(name="customers")
@@ -28,6 +33,13 @@ public class CustomerEntity {
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<OrdersEntity> orders;
+    
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinTable(name = "roles_customers",
+    joinColumns = @JoinColumn(name = "CUSTOMER_ID", referencedColumnName = "customerId"),
+    inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
+    )
+    private Set<Role> roles;
 
 	public CustomerEntity() {
 		super();
@@ -36,8 +48,12 @@ public class CustomerEntity {
 
 	
 
+	
+
+
+
 	public CustomerEntity(Integer customerId, String name, String emailId, String password, String mobile,
-			String address, List<OrdersEntity> orders) {
+			String address, List<OrdersEntity> orders, Set<Role> roles) {
 		super();
 		this.customerId = customerId;
 		this.name = name;
@@ -46,7 +62,12 @@ public class CustomerEntity {
 		this.mobile = mobile;
 		this.address = address;
 		this.orders = orders;
+		this.roles = roles;
 	}
+
+
+
+
 
 
 
@@ -108,6 +129,18 @@ public class CustomerEntity {
 
 	public void setAddress(String address) {
 		this.address = address;
+	}
+
+
+
+	public Set<Role> getRoles() {
+		return roles;
+	}
+
+
+
+	public void setRoles(Set<Role> roles) {
+		this.roles = roles;
 	}
 	
 	

@@ -6,6 +6,13 @@ public class CustomerDTO {
 	private String email;
 	private String mobile;
 	private String address;
+	private String role;
+	public String getRole() {
+		return role;
+	}
+	public void setRole(String role) {
+		this.role = role;
+	}
 	public Integer getId() {
 		return id;
 	}

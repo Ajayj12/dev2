@@ -20,13 +20,3 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Integer>
 }
 
 
-//<dependency>
-//<groupId>org.springframework.security</groupId>
-//<artifactId>spring-security-test</artifactId>
-//<scope>test</scope>
-//</dependency>
-
-//<dependency>
-//<groupId>org.springframework.boot</groupId>
-//<artifactId>spring-boot-starter-security</artifactId>
-//</dependency>

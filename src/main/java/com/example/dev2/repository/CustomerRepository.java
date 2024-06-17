@@ -11,6 +11,10 @@ import com.example.dev2.entity.ProductEntity;
 
 @Repository
 public interface CustomerRepository extends JpaRepository<CustomerEntity, Integer>{
+
+	CustomerEntity findByEmailId(String emailId);
+
+	boolean existsByEmailId(String emailId);
 	
 	
 
