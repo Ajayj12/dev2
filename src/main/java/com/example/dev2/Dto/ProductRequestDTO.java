@@ -6,7 +6,7 @@ public class ProductRequestDTO {
 	
 	private String name;
 	private Double amount;
-	
+	private String image;
 	private Integer stock;
 	
 	private Integer categoryId;
@@ -14,6 +14,17 @@ public class ProductRequestDTO {
 	public Integer getId() {
 		return id;
 	}
+	
+	
+	public String getImage() {
+		return image;
+	}
+
+
+	public void setImage(String image) {
+		this.image = image;
+	}
+
 
 	public void setId(Integer id) {
 		this.id = id;

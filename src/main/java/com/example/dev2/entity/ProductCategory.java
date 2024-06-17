@@ -2,6 +2,8 @@ package com.example.dev2.entity;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -20,6 +22,7 @@ public class ProductCategory {
     private String categoryName;
     
     @OneToMany(mappedBy = "productCategory", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<ProductEntity> products;
 
 	public ProductCategory() {

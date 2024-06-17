@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.dev2.Dto.OrderRequestDto;
+import com.example.dev2.Dto.ProductRequestDTO;
 import com.example.dev2.entity.OrderDetails;
 import com.example.dev2.entity.OrdersEntity;
 import com.example.dev2.entity.ProductCategory;
@@ -24,7 +26,7 @@ import com.example.dev2.service.CustomerService;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.transaction.Transactional;
-
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping(path="/api/user" , headers="Accept=application/json")
 public class CustomerController {
@@ -43,16 +45,21 @@ public class CustomerController {
 		return customerService.getAllProducts(product);
 	}
 	
-	@GetMapping("products/{categoryId}")
-	public Optional<ProductCategory> getProductsByCategory(@PathVariable("categoryId")Integer categoryId){
+	@GetMapping("products/{productcategoryId}")
+	public List<ProductEntity> getProductsByCategoryId(@PathVariable("productcategoryId") Integer productcategoryId){
 		
-		return customerService.getProductsByCategory(categoryId);
+		return customerService.getProductsByCategoryId(productcategoryId);
 	}
 	
 	@GetMapping("product/{id}")
 	public Optional<ProductEntity> getProductById(@PathVariable("id")Integer id){
 		return customerService.getProductById(id);
 		
+	}
+	
+	@GetMapping("trending")
+	public List<ProductEntity> getTrending(){
+		return customerService.getTrending();
 	}
 	
 	

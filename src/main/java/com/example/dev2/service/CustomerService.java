@@ -47,32 +47,19 @@ public class CustomerService {
 		return productRepo.findById(id);
 	}
 	
-	public Optional<ProductCategory> getProductsByCategory(Integer categoryId){
-		return productCatRepo.findById(categoryId);
+	public List<ProductEntity> getProductsByCategoryId(Integer productcategoryId){
+		
+		return productRepo.findProductsByCategory_Id(productcategoryId);
 	}
 	
+	public List<ProductEntity> getTrending() {
+		
+		int stockleft = 95;
+        return productRepo.findByStockLessThanEqual(stockleft);
+		
+	}
 	
-//	public OrderDetails PlaceOrderById(Integer quantity, Double unitPrice, Double totalPrice, OrdersEntity order, Integer productId) {
-//			
-//		
-//		Optional<ProductEntity> prod = productRepo.findById(productId);
-//
-//        if (!prod.isPresent()) {
-//            throw new RuntimeException("product not found");
-//        }
-//			ProductEntity product = prod.get();
-//			OrderDetails placeOrder = new OrderDetails();
-//			placeOrder.setQuantity(quantity);
-//			placeOrder.setUnitPrice(unitPrice);
-//			placeOrder.setTotalPrice(unitPrice * quantity);
-//			placeOrder.setOrder(order);
-//			placeOrder.setProduct(product);
-//				
-//			return orderDetailsRepo.save(placeOrder);
-//			
-//			
-//		}
-			
+		
 		
 	public OrdersEntity placeOrder(Integer customerId, List<OrderDetails> orderDetails) throws Exception{
 		
@@ -96,12 +83,15 @@ public class CustomerService {
 	                throw new Exception("Product not found for ID: " + (ordList.getProduct().getId()));
 	            }
 	            
+	          
 	         ProductEntity product = productOptional.get();
+	         if(product.getStock() != 0) {
 	         ordList.setOrder(order);
 	         ordList.setUnitPrice(product.getAmount());
 	         ordList.setTotalPrice(product.getAmount() * ordList.getQuantity());
 	         
 	         totalAmount += ordList.getTotalPrice();
+	         }
 		}
 		
 		order.setTotalAmount(totalAmount);

@@ -22,15 +22,17 @@ public class ProductEntity {
     private Integer id;
     
     private String name;
+    
     private Double amount;
+    private String image;
     private Integer stock;
     
     @ManyToOne
     @JoinColumn(name = "product_category_id")
-    @JsonIgnore
     private ProductCategory productCategory;
     
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<OrderDetails> orderDetails;
 
 	public ProductEntity() {
@@ -38,16 +40,21 @@ public class ProductEntity {
 		// TODO Auto-generated constructor stub
 	}
 
-	public ProductEntity(Integer id, String name, Double amount, Integer stock, ProductCategory productCategory,
-			List<OrderDetails> orderDetails) {
+	
+
+	public ProductEntity(Integer id, String name,  Double amount, String image,Integer stock,
+			ProductCategory productCategory, List<OrderDetails> orderDetails) {
 		super();
 		this.id = id;
 		this.name = name;
 		this.amount = amount;
+		this.image = image;
 		this.stock = stock;
 		this.productCategory = productCategory;
 		this.orderDetails = orderDetails;
 	}
+
+
 
 	public Integer getId() {
 		return id;
@@ -73,6 +80,16 @@ public class ProductEntity {
 		this.amount = amount;
 	}
 
+	public String getImage() {
+		return image;
+	}
+
+
+
+	public void setImage(String image) {
+		this.image = image;
+	}
+	
 	public Integer getStock() {
 		return stock;
 	}
@@ -96,6 +113,11 @@ public class ProductEntity {
 	public void setOrderDetails(List<OrderDetails> orderDetails) {
 		this.orderDetails = orderDetails;
 	}
+
+
+
+	
+	
     
     
 }
