@@ -10,16 +10,22 @@ import org.springframework.stereotype.Service;
 
 import com.example.dev2.Dto.CustomerDTO;
 import com.example.dev2.Dto.ProductRequestDTO;
+import com.example.dev2.entity.Cart;
+import com.example.dev2.entity.CartItem;
 import com.example.dev2.entity.CustomerEntity;
 import com.example.dev2.entity.OrderDetails;
 import com.example.dev2.entity.OrdersEntity;
 import com.example.dev2.entity.ProductCategory;
 import com.example.dev2.entity.ProductEntity;
+import com.example.dev2.entity.WishList;
+import com.example.dev2.repository.CartItemRepository;
+import com.example.dev2.repository.CartRepository;
 import com.example.dev2.repository.CustomerRepository;
 import com.example.dev2.repository.OrderDetailsRepository;
 import com.example.dev2.repository.OrdersRepository;
 import com.example.dev2.repository.ProductCategoryRepository;
 import com.example.dev2.repository.ProductRepository;
+import com.example.dev2.repository.WishListRepository;
 
 @Service
 public class CustomerService {
@@ -34,6 +40,12 @@ public class CustomerService {
 	private ProductCategoryRepository productCatRepo;
 	@Autowired
 	private OrdersRepository ordersRepo;
+	@Autowired
+	private CartRepository cartRepo;
+	@Autowired
+	private CartItemRepository cartItemRepo;
+	@Autowired
+	private WishListRepository wishListRepo;
 	
 	
 	public List<ProductEntity> getAllProducts(ProductEntity product) {
@@ -60,7 +72,7 @@ public class CustomerService {
 	}
 	
 		
-		
+		//PLACE ORDER BY CUSTOMER
 	public OrdersEntity placeOrder(Integer customerId, List<OrderDetails> orderDetails) throws Exception{
 		
 		Optional<CustomerEntity> customer = customerRepo.findById(customerId);
@@ -105,9 +117,69 @@ public class CustomerService {
 		return saveOrder;
 		
 	}
-		
+	
+	// ADD TO CART
+	public Cart addToCart(CustomerEntity customer, Integer productId, Integer quantity) throws Exception {
+	    Optional<ProductEntity> productOptional = productRepo.findById(productId);
+	    if (!productOptional.isPresent()) {
+	        throw new Exception("Product not found");
+	    }
+	    ProductEntity product = productOptional.get();
+
+	    Optional<Cart> cartOptional = cartRepo.findByCustomer(customer);
+	    Cart cart;
+	    if (cartOptional.isPresent()) {
+	        cart = cartOptional.get();
+	    } else {
+	        cart = new Cart();
+	        cart.setCustomer(customer);
+	        cartRepo.save(cart);
+	    }
+
+	    Optional<CartItem> cartItemOptional = cartItemRepo.findByCartAndProduct(cart, product);
+	    CartItem cartItem;
+	    if (cartItemOptional.isPresent()) {
+	        cartItem = cartItemOptional.get();
+	        cartItem.setQuantity(cartItem.getQuantity() + quantity);
+	    } else {
+	        cartItem = new CartItem();
+	        cartItem.setProduct(product);
+	        cartItem.setQuantity(quantity);
+	        cartItem.setCart(cart);
+	    }
+	    cartItemRepo.save(cartItem);
+	    return cart;
+	}
+
+	
+	// ADD to wishlist
 	
 	
+	public WishList addItemToWishList(Integer customerId, Integer productId) {
+        Optional<CustomerEntity> customer = customerRepo.findById(customerId);
+        Optional<ProductEntity> product = productRepo.findById(productId);
+        if (customer.isPresent() && product.isPresent()) {
+            // Check if the product is already in the wishlist
+            Optional<WishList> existingWishListItem = wishListRepo.findByCustomerAndProduct(customer.get(), product.get());
+            if (existingWishListItem.isPresent()) {
+                // Product is already in the wishlist, return a message
+                throw new RuntimeException("Product is already in the wishlist.");
+            } else {
+                // Create a new wishlist item
+                WishList wishListItem = new WishList();
+                wishListItem.setCustomer(customer.get());
+                wishListItem.setProduct(product.get());
+                return wishListRepo.save(wishListItem);
+            }
+        } else {
+            throw new RuntimeException("Customer or product not found.");
+        }
+    }
+	
+	
+	public Optional<WishList> getWishlistByCustomerId(Integer customerId) {
+	    return wishListRepo.findByCustomerCustomerId(customerId);
+	}
 	
 	
 
