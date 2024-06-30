@@ -3,6 +3,7 @@ package com.example.dev2.controller;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,9 +11,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,6 +25,7 @@ import com.example.dev2.Dto.AddToCartDto;
 import com.example.dev2.Dto.AddWishListDto;
 import com.example.dev2.Dto.OrderRequestDto;
 import com.example.dev2.Dto.ProductRequestDTO;
+import com.example.dev2.Dto.RemoveItemDto;
 import com.example.dev2.entity.Cart;
 import com.example.dev2.entity.CartItem;
 import com.example.dev2.entity.CustomerEntity;
@@ -99,13 +103,19 @@ public class CustomerController {
 	@PostMapping("placeOrder/{customerId}")
 	public ResponseEntity<OrdersEntity> placeOrder(@RequestBody OrderRequestDto orderRequest) {
 		try {
-			OrdersEntity order = customerService.placeOrder(orderRequest.getCustomerId(), orderRequest.getOrderDetails());
+			OrdersEntity order = customerService.placeOrder(orderRequest.getCustomerId(), orderRequest.getOrderDetails(), orderRequest.getCartItems());
+			
 			return ResponseEntity.ok(order);
 		}catch(Exception e) {
 			return ResponseEntity.badRequest().body(null);
 		}
 	}
-	
+	@PreAuthorize("hasRole('ROLE_USER')")
+	@GetMapping("orders/{customerId}")
+	public List<OrdersEntity> getOrdersById(@PathVariable Integer customerId) throws Exception{
+		return customerService.getOrdersById(customerId);
+		
+	}
 
 	
 	
@@ -129,11 +139,105 @@ public class CustomerController {
 	}
 	
 	@PreAuthorize("hasRole('ROLE_USER')")
-	@PostMapping("addToWishList/{productId}")
+	@PutMapping("increase")
+	public ResponseEntity<CartItem> increaseQuantity(@RequestBody RemoveItemDto increaseDto) throws Exception{
+		if (increaseDto.getCustomerId() == null || increaseDto.getProductId() == null) {
+	        throw new IllegalArgumentException("Customer ID and Product ID must not be null");
+	    }
+		Optional<CustomerEntity> customerOptional = customerRepo.findById(increaseDto.getCustomerId());
+		
+	    CustomerEntity customer = customerOptional.get();
+	    if (customer == null) {
+	        throw new Exception("Customer not found");
+	}
+	    
+	    return ResponseEntity.ok(customerService.increaseQuantity(customer, increaseDto.getProductId()));
+	}
+	
+	@PreAuthorize("hasRole('ROLE_USER')")
+	@PutMapping("decrease")
+	public ResponseEntity<CartItem> decreaseQuantity(@RequestBody RemoveItemDto increaseDto) throws Exception{
+		if (increaseDto.getCustomerId() == null || increaseDto.getProductId() == null) {
+	        throw new IllegalArgumentException("Customer ID and Product ID must not be null");
+	    }
+		Optional<CustomerEntity> customerOptional = customerRepo.findById(increaseDto.getCustomerId());
+		
+	    CustomerEntity customer = customerOptional.get();
+	    if (customer == null) {
+	        throw new Exception("Customer not found");
+	}
+	    
+	    return ResponseEntity.ok(customerService.decreaseQuantity(customer, increaseDto.getProductId()));
+	}
+	
+	@PreAuthorize("hasRole('ROLE_USER')")
+	@PostMapping("addToWishList")
 	 public WishList addItemToWishList(@RequestBody AddWishListDto addWishList) {
 	        return customerService.addItemToWishList(addWishList.getCustomerId(),addWishList.getProductId());
 	    }
+//	@PreAuthorize("hasRole('ROLE_USER')")
+//	@DeleteMapping("removeWishList")
+//	public String removeFromWishlist(@RequestBody AddWishListDto addWishList) throws Exception {
+//		if (addWishList.getCustomerId() == null || addWishList.getProductId() == null) {
+//	        throw new IllegalArgumentException("Customer ID and Product ID must not be null");
+//	    }
+//		Optional<ProductEntity> productOptional = productRepository.findById(addWishList.getProductId());
+//		Optional<CustomerEntity> customerOptional = customerRepo.findById(addWishList.getCustomerId());
+//		CustomerEntity customer = customerOptional.get();
+//	    if (customer == null) {
+//	    	 throw new Exception("Customer not found");
+//	    }
+//	    ProductEntity prod = productOptional.get();
+//	    CustomerEntity cust = customerOptional.get();
+//	    Optional<WishList> list1 = wishRepo.findByCustomerAndProduct(cust,prod);
+//	    WishList wish;
+//	    if(list1 == null) {
+//	    	throw new Exception("List not found");
+//	    }else {
+//	    	wish = list1.get();
+//	
+//	    }
+//	    
+//	    return wishRepo.re
+//	    
+//	    
+//	    
+//	   
+//	     
+//		
+//	}
+	@PreAuthorize("hasRole('ROLE_USER')")
+	@DeleteMapping("removeItem")
+	public String removeFromCart(@RequestBody RemoveItemDto removeCart) throws Exception {
+		if (removeCart.getCustomerId() == null || removeCart.getProductId() == null) {
+	        throw new IllegalArgumentException("Customer ID and Product ID must not be null");
+	    }
+		Optional<CustomerEntity> customerOptional = customerRepo.findById(removeCart.getCustomerId());
+		
+	    CustomerEntity customer = customerOptional.get();
+	    if (customer == null) {
+	        throw new Exception("Customer not found");
+	    }
 
+	    customerService.removeFromCart(customer, removeCart.getProductId());
+	    return "Item removed from cart";
+		
+	}
+	@PreAuthorize("hasRole('ROLE_USER')")
+	@DeleteMapping("removeWish")
+	public String removeFromWishList(@RequestBody RemoveItemDto removeWishList) throws Exception {
+		if (removeWishList.getCustomerId() == null || removeWishList.getProductId() == null) {
+	        throw new IllegalArgumentException("Customer ID and Product ID must not be null");
+	    }
+		Optional<CustomerEntity> customerOptional = customerRepo.findById(removeWishList.getCustomerId());
+		
+	    CustomerEntity customer = customerOptional.get();
+	    if (customer == null) {
+	        throw new Exception("Customer not found");
+	    }
+	    customerService.removeFromWishList(removeWishList.getCustomerId(), removeWishList.getProductId());
+	    return "Item Removed From WishList";
+	}
 	
 	@PreAuthorize("hasRole('ROLE_USER')")
 	@GetMapping("cart/{customerId}")
@@ -149,6 +253,11 @@ public class CustomerController {
 		}
 		Cart cart = cartOptional.get();
 		List<CartItem> cartItems = cartItemRepo.findByCart(cart);
+		
+		cartItems = cartItems.stream()
+                .filter(cartItem -> cartItem.getQuantity() > 0)
+                .collect(Collectors.toList());
+		
 		return ResponseEntity.ok(cartItems);
 		
 		

@@ -1,10 +1,8 @@
 package com.example.dev2.controller;
 
-
-
-
-
 import java.util.List;
+
+
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,8 +46,7 @@ public class AdminController {
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@PostMapping("addproduct")
 	public ResponseEntity<ProductEntity> addProduct(@RequestBody ProductRequestDTO productDto ) throws NotFoundException {
-//		ProductCategory productcategory = productCatRepo.findById(categoryId).orElseThrow(() -> new NotFoundException());
-		
+
 		
 		ProductEntity pro = adminService.addProduct(productDto.getName(),productDto.getAmount(),productDto.getImage(), productDto.getStock(),productDto.getCategoryId());
 		
@@ -118,7 +115,7 @@ public class AdminController {
 	@PostMapping("placeOrder/{customerId}")
 	public ResponseEntity<OrdersEntity> placeOrder(@RequestBody OrderRequestDto orderRequest) {
 		try {
-			OrdersEntity order = customerService.placeOrder(orderRequest.getCustomerId(), orderRequest.getOrderDetails());
+			OrdersEntity order = customerService.placeOrder(orderRequest.getCustomerId(), orderRequest.getOrderDetails(), orderRequest.getCartItems());
 			return ResponseEntity.ok(order);
 		}catch(Exception e) {
 			return ResponseEntity.badRequest().body(null);

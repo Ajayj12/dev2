@@ -33,7 +33,6 @@ public class OrdersEntity {
     private CustomerEntity customer;
     
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
     private List<OrderDetails> orderDetails;
 
 	public OrdersEntity() {

@@ -73,7 +73,7 @@ public class CustomerService {
 	
 		
 		//PLACE ORDER BY CUSTOMER
-	public OrdersEntity placeOrder(Integer customerId, List<OrderDetails> orderDetails) throws Exception{
+	public OrdersEntity placeOrder(Integer customerId, List<OrderDetails> orderDetails, List<CartItem> cartItems) throws Exception{
 		
 		Optional<CustomerEntity> customer = customerRepo.findById(customerId);
 		if(!customer.isPresent()) {
@@ -105,16 +105,38 @@ public class CustomerService {
 	         totalAmount += ordList.getTotalPrice();
 	         }
 		}
-		
+
 		order.setTotalAmount(totalAmount);
-		
+		order.setOrderDetails(orderDetails);
 		OrdersEntity saveOrder = ordersRepo.save(order);
 		
-		for(OrderDetails ordList : orderDetails) {
-			orderDetailsRepo.save(ordList);
+		for(CartItem cartIt : cartItems) {
+			Optional<ProductEntity> productOptional = productRepo.findById((cartIt.getProduct().getId()));
+			ProductEntity product = productOptional.get();
+		    
+		    Optional<Cart> cartOptional = cartRepo.findByCustomer(cust);
+		    Cart cart = cartOptional.get();
+		    if(cartOptional.isPresent()) {
+		    	Optional<CartItem> cartItemOptional = cartItemRepo.findByCartAndProduct(cart, product);
+		    	
+		    	CartItem cartItem = cartItemOptional.get();
+		    	cartItemRepo.delete(cartItem);
+		    	
+		    }
+			
 		}
+
 		
 		return saveOrder;
+		
+	}
+	
+	
+	public List<OrdersEntity> getOrdersById(Integer customerId) throws Exception {
+		
+		return ordersRepo.findByCustomerCustomerId(customerId);
+		
+		
 		
 	}
 	
@@ -150,6 +172,71 @@ public class CustomerService {
 	    cartItemRepo.save(cartItem);
 	    return cart;
 	}
+	
+	public CartItem increaseQuantity(CustomerEntity customer, Integer productId) throws Exception {
+		Optional<ProductEntity> productOptional = productRepo.findById(productId);
+	    if (!productOptional.isPresent()) {
+	        throw new Exception("Product not found");
+	    }
+	    ProductEntity product = productOptional.get();
+	    Optional<Cart> cartOptional = cartRepo.findByCustomer(customer);
+	    Cart cart = cartOptional.get();
+	    CartItem cartItem;
+	    if(cartOptional.isPresent()) {
+	    	Optional<CartItem> cartItemOptional = cartItemRepo.findByCartAndProduct(cart, product);
+
+	    	cartItem = cartItemOptional.get();
+	    	cartItem.setQuantity(cartItem.getQuantity() + 1);
+	    	cartItemRepo.save(cartItem);
+	    	return cartItem;	
+	}return null;
+	    
+	}
+	
+	public CartItem decreaseQuantity(CustomerEntity customer, Integer productId) throws Exception {
+		Optional<ProductEntity> productOptional = productRepo.findById(productId);
+	    if (!productOptional.isPresent()) {
+	        throw new Exception("Product not found");
+	    }
+	    ProductEntity product = productOptional.get();
+	    Optional<Cart> cartOptional = cartRepo.findByCustomer(customer);
+	    Cart cart = cartOptional.get();
+	    CartItem cartItem = null;
+	    if(cartOptional.isPresent()) {
+	    	Optional<CartItem> cartItemOptional = cartItemRepo.findByCartAndProduct(cart, product);
+
+	    	cartItem = cartItemOptional.get();
+	    	cartItem.setQuantity(cartItem.getQuantity() - 1);
+	    	cartItemRepo.save(cartItem);
+	    	if(cartItem.getQuantity() == 0) {
+	    		throw new Exception("Cart is Empty");
+	    	};
+	    	
+	}return cartItem;
+	    
+	}
+	
+	//delete from cart
+	public void removeFromCart(CustomerEntity customer, Integer productId) throws Exception {
+		 Optional<ProductEntity> productOptional = productRepo.findById(productId);
+		    if (!productOptional.isPresent()) {
+		        throw new Exception("Product not found");
+		    }
+		    ProductEntity product = productOptional.get();
+		    
+		    Optional<Cart> cartOptional = cartRepo.findByCustomer(customer);
+		    Cart cart = cartOptional.get();
+		    if(cartOptional.isPresent()) {
+		    	Optional<CartItem> cartItemOptional = cartItemRepo.findByCartAndProduct(cart, product);
+		    	
+		    	CartItem cartItem = cartItemOptional.get();
+		    	cartItemRepo.delete(cartItem);
+		    	
+		    }
+		    
+		
+	}
+	
 
 	
 	// ADD to wishlist
@@ -175,6 +262,28 @@ public class CustomerService {
             throw new RuntimeException("Customer or product not found.");
         }
     }
+	
+	
+	public void removeFromWishList(Integer customerId, Integer productId ) throws Exception {
+		Optional<CustomerEntity> customer = customerRepo.findById(customerId);
+		
+		Optional<ProductEntity> productOptional = productRepo.findById(productId);
+	    if (!productOptional.isPresent()) {
+	        throw new Exception("Product not found");
+	    }
+	    ProductEntity product = productOptional.get();
+	    
+	    Optional<WishList> WishListItem = wishListRepo.findByCustomerAndProduct(customer.get(), product);
+        if (WishListItem.isPresent()) {
+        	WishList Item = WishListItem.get();
+        	wishListRepo.delete(Item);
+        }
+	    
+		
+	}
+	
+	
+	
 	
 	
 	public Optional<WishList> getWishlistByCustomerId(Integer customerId) {

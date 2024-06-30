@@ -23,6 +23,7 @@ public class OrderDetails {
     
     @ManyToOne
     @JoinColumn(name = "order_id")
+    @JsonIgnore
     private OrdersEntity order;
     
     @ManyToOne
