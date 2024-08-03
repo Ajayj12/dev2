@@ -82,7 +82,7 @@ public class AdminController {
 	
 	
 	
-	//APIS USED BY USER AND ALSO ADMIN
+	//APIS USED BY USER's AND ALSO ADMIN's
 	
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@GetMapping("products")
